@@ -55,7 +55,7 @@ namespace DebugSystem {
         switch (level) {
             case LogLevel::INFO:      lvlStr = "[INFO] "; break;
             case LogLevel::WARNING:   lvlStr = "[WARNING] "; break;
-            case LogLevel::ERROR_LVL: lvlStr = "[ERROR] "; break;
+            case LogLevel::ERROR: lvlStr = "[ERROR] "; break;
             case LogLevel::DEBUG:     lvlStr = "[DEBUG] "; break;
         }
 

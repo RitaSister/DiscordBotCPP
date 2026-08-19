@@ -30,7 +30,9 @@ namespace ConsoleSystem {
         }
         return { hOut, hIn };
 #elif __linux__
-        return { reinterpret_cast<void*>(1), reinterpret_cast<void*>(0) };
+        return {
+            reinterpret_cast<void*>(1), reinterpret_cast<void*>(0)
+        };
 #endif
     }
 

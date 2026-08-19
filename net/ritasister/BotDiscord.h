@@ -7,6 +7,7 @@ namespace Core {
         void* hOut;
         void* hIn;
         bool isRunning;
+        int numberOfThreads;
 
     public:
         BotDiscord();

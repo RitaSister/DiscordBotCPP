@@ -6,7 +6,7 @@ namespace DebugSystem {
     enum class LogLevel {
         INFO,
         WARNING,
-        ERROR_LVL,
+        ERROR,
         DEBUG
     };
 

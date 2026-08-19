@@ -12,8 +12,7 @@ extern "C" {
 #endif
 
 namespace ConfigSystem {
-
-    bool createDefaultConfig(const char* filename) {
+    static bool createDefaultConfig(const char* filename) {
         // Человекочитаемый YAML-шаблон
         const char* templateContent = "token: \"YOUR_BOT_TOKEN_HERE\"\n";
         unsigned long contentLength = 0;
