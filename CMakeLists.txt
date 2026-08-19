@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(DiscordBotCPP
         net/ritasister/Main.cpp
+        net/ritasister/BotDiscord.cpp
+        net/ritasister/BotDiscord.h
         net/ritasister/console/Console.cpp
         net/ritasister/console/Console.h
         net/ritasister/network/Network.cpp
@@ -13,17 +15,24 @@ add_executable(DiscordBotCPP
         net/ritasister/config/Config.h
         net/ritasister/scheduler/Scheduler.cpp
         net/ritasister/scheduler/Scheduler.h
-        net/ritasister/logging/debug/Debug.cpp  # Учитываем реальную папку logging
-        net/ritasister/logging/debug/Debug.h    # Учитываем реальную папку logging
+        net/ritasister/logging/debug/Debug.cpp
+        net/ritasister/logging/debug/Debug.h
+        net/ritasister/util/TimeUtils.cpp
+        net/ritasister/util/TimeUtils.h
+        net/ritasister/logging/LogArchiver.h
+        net/ritasister/logging/LogArchiver.cpp
 )
 
 set_source_files_properties(
         net/ritasister/Main.cpp
+        net/ritasister/BotDiscord.cpp
         net/ritasister/console/Console.cpp
         net/ritasister/network/Network.cpp
         net/ritasister/config/Config.cpp
         net/ritasister/scheduler/Scheduler.cpp
-        net/ritasister/logging/debug/Debug.cpp  # Не забываем про отключение сканирования для нового файла
+        net/ritasister/logging/debug/Debug.cpp
+        net/ritasister/util/TimeUtils.cpp
+        net/ritasister/logging/LogArchiver.cpp
         PROPERTIES CXX_SCAN_FOR_MODULES OFF
 )
 

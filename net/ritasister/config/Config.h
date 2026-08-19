@@ -3,11 +3,10 @@
 namespace ConfigSystem {
     struct BotConfig {
         char token[128];
+        unsigned int flags;
+        unsigned short port;
     };
 
-    // Чтение конфигурационного файла
     BotConfig loadConfig(const char* filename);
-
-    // Создание файла конфигурации по умолчанию с шаблоном
-    bool createDefaultConfig(const char* filename);
+    bool isDefaultToken(const BotConfig& config); // Проверка на заглушку
 }
