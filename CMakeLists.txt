@@ -32,6 +32,16 @@ add_executable(DiscordBotCPP
         net/ritasister/discord/DiscordClient.h
         net/ritasister/network/http/server/HttpServer.cpp
         net/ritasister/network/http/server/HttpServer.h
+        net/ritasister/network/crypto/Crypto.cpp
+        net/ritasister/network/crypto/Crypto.h
+        net/ritasister/network/crypto/X25519.cpp
+        net/ritasister/network/crypto/X25519.h
+        net/ritasister/network/crypto/ChaCha20Poly1305.h
+        net/ritasister/network/crypto/ChaCha20Poly1305.cpp
+        net/ritasister/network/tls/TlsClient.cpp
+        net/ritasister/network/tls/TlsClient.h
+        net/ritasister/memory/CoreMemory.cpp
+        net/ritasister/memory/CoreMemory.h
 )
 
 set_source_files_properties(
@@ -48,14 +58,20 @@ set_source_files_properties(
         net/ritasister/network/socket/Socket.cpp
         net/ritasister/network/http/server/HttpServer.cpp
         net/ritasister/discord/DiscordClient.cpp
-        PROPERTIES CXX_SCAN_FOR_MODULES OFF
+        net/ritasister/network/crypto/Crypto.cpp
+        net/ritasister/network/crypto/X25519.cpp
+        net/ritasister/network/crypto/ChaCha20Poly1305.cpp
+        net/ritasister/network/tls/TlsClient.cpp
 )
 
 target_link_options(DiscordBotCPP PRIVATE -nostdlib)
 
 # 1. Убираем стандартные библиотеки, которые линковщик пытается воткнуть автоматически,
 # и добавляем только те, что нужны для нашего "голого" билда.
-set_target_properties(DiscordBotCPP PROPERTIES LINK_FLAGS "-nostdlib -Wl,-e,_discord_bot_entry")
+set_target_properties(DiscordBotCPP PROPERTIES
+        LINK_FLAGS "-nostdlib -Wl,-e,_discord_bot_entry"
+        CXX_SCAN_FOR_MODULES OFF
+)
 
 if(WIN32)
     # Добавляем ws2_32 (для сети) и kernel32 (обязательно для WinAPI)

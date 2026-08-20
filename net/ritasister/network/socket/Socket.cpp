@@ -9,6 +9,9 @@ extern "C" {
     __declspec(dllimport) int __stdcall closesocket(unsigned long long s);
     __declspec(dllimport) unsigned long __stdcall inet_addr(const char* cp);
     __declspec(dllimport) unsigned short __stdcall htons(unsigned short hostshort);
+    __declspec(dllimport) int __stdcall setsockopt(unsigned long long s, int level, int optname, const char* optval, int optlen);
+    __declspec(dllimport) int __stdcall getaddrinfo(const char* nodename, const char* servname, const void* hints, void** res);
+    __declspec(dllimport) int __stdcall freeaddrinfo(void* ai);
 }
 #endif
 
@@ -24,11 +27,15 @@ namespace NetworkSystem {
         if (socketHandle != nullptr) return true;
 
 #ifdef _WIN32
-        // AF_INET = 2, SOCK_STREAM = 1, IPPROTO_TCP = 6
         unsigned long long s = socket(2, 1, 6);
-        if (s == ~0ULL) { // INVALID_SOCKET
+        if (s == ~0ULL) {
             return false;
         }
+
+        unsigned long timeoutMs = 3000;
+        setsockopt(s, 0xFFFF, 0x1006, reinterpret_cast<const char*>(&timeoutMs), sizeof(timeoutMs));
+        setsockopt(s, 0xFFFF, 0x1005, reinterpret_cast<const char*>(&timeoutMs), sizeof(timeoutMs));
+
         socketHandle = reinterpret_cast<void*>(s);
         return true;
 #else
@@ -43,7 +50,7 @@ namespace NetworkSystem {
         unsigned long long s = reinterpret_cast<unsigned long long>(socketHandle);
 
         char addr[16] = {0};
-        *reinterpret_cast<unsigned short*>(addr) = 2; // AF_INET
+        *reinterpret_cast<unsigned short*>(addr) = 2;
         *reinterpret_cast<unsigned short*>(addr + 2) = htons(port);
         *reinterpret_cast<unsigned long*>(addr + 4) = inet_addr(ip);
 
@@ -93,4 +100,46 @@ namespace NetworkSystem {
         return connected;
     }
 
-} // namespace NetworkSystem
+    // Автономный DNS-резолвер
+    bool resolveDomainToIp(const char* domain, char* ipOutputBuffer, unsigned long bufferSize) {
+#ifdef _WIN32
+        void* resultList = nullptr;
+
+        if (getaddrinfo(domain, "443", nullptr, &resultList) != 0 || !resultList) {
+            return false;
+        }
+
+        unsigned char* addrStruct = *reinterpret_cast<unsigned char**>(reinterpret_cast<char*>(resultList) + 24);
+        if (addrStruct) {
+            unsigned long ipVal = *reinterpret_cast<unsigned long*>(addrStruct + 4);
+
+            unsigned char* bytes = reinterpret_cast<unsigned char*>(&ipVal);
+            int offset = 0;
+
+            for (int i = 0; i < 4; ++i) {
+                unsigned char b = bytes[i];
+                if (b >= 100) {
+                    ipOutputBuffer[offset++] = '0' + (b / 100);
+                    b %= 100;
+                    ipOutputBuffer[offset++] = '0' + (b / 10);
+                    ipOutputBuffer[offset++] = '0' + (b % 10);
+                } else if (b >= 10) {
+                    ipOutputBuffer[offset++] = '0' + (b / 10);
+                    ipOutputBuffer[offset++] = '0' + (b % 10);
+                } else {
+                    ipOutputBuffer[offset++] = '0' + b;
+                }
+                if (i < 3) ipOutputBuffer[offset++] = '.';
+            }
+            ipOutputBuffer[offset] = '\0';
+
+            freeaddrinfo(resultList);
+            return true;
+        }
+
+        freeaddrinfo(resultList);
+#endif
+        return false;
+    }
+
+} // namespace NetworkName

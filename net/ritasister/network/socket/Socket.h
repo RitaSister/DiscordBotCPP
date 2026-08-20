@@ -25,4 +25,7 @@ namespace NetworkSystem {
         bool isConnected() const;
     };
 
+    // Вне класса, внутри пространства имен NetworkSystem:
+    bool resolveDomainToIp(const char* domain, char* ipOutputBuffer, unsigned long bufferSize);
+
 } // namespace NetworkSystem

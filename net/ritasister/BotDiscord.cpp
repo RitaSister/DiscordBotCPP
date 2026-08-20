@@ -59,7 +59,7 @@ namespace Core {
             DebugSystem::Logger::log(hOut, DebugSystem::LogLevel::ERROR, "Failed to start local HttpServer.");
         }
 
-        // Даем серверу 50 мс на инициализацию слушающего сокета
+        // Даем серверу 50 мс на инициализацию
         SchedulerSystem::systemSleep(50);
 
         DebugSystem::Logger::log(hOut, DebugSystem::LogLevel::DEBUG, "Entering main event loop with scheduler.");
@@ -69,30 +69,30 @@ namespace Core {
         SchedulerSystem::Task fastTask(3000);
         SchedulerSystem::Task serverPollTask(50);
 
-        bool requestSent = false; // Флаг для отправки запроса ровно один раз
+        bool requestSent = false;
 
         while (isRunning) {
             unsigned long long currentTime = SchedulerSystem::getSystemTimeMs();
+
+            // Отправляем запрос к Discord ровно один раз сразу после старта главного цикла
+            if (!requestSent) {
+                sendDiscordApiRequest(hOut);
+                requestSent = true;
+            }
 
             if (fastTask.check(currentTime)) {
                 DebugSystem::Logger::log(hOut, DebugSystem::LogLevel::DEBUG, "Scheduler tick: background check...");
             }
 
-            // Опрашиваем наш HTTP-сервер
+            // Опрашиваем наш локальный HTTP-сервер
             if (serverPollTask.check(currentTime)) {
                 localServer.pollAndHandle(hOut);
-
-                // Отправляем запрос сразу, как только шедулер начал опрос сервера
-                if (!requestSent) {
-                    Core::sendDiscordApiRequest(hOut);
-                    requestSent = true;
-                }
             }
 
             SchedulerSystem::systemSleep(10);
         }
 
-        // Корректная очистка ресурсов происходит ТОЛЬКО при завершении работы бота
+        // Корректная очистка ресурсов при завершении
         localServer.stop();
         NetworkSystem::cleanupNetwork();
     }
